@@ -3,7 +3,7 @@ window.TrelloPowerUp.initialize({
         return t.list('name', 'id')
             .then(function(list) {
                 return [{
-                    text: "Card Name",
+                    text: 'Card Name',
                     callback: function(t, opts) {
                         // Trello will call this if the user clicks on this sort
                         // opts.cards contains all card objects in the list
@@ -18,10 +18,10 @@ window.TrelloPowerUp.initialize({
                             });
 
                         return {
-                            sortedIds: sortedCards.map(function(c) { return c.id; })
+                            sortedIds: sortedCards.map(function(c) { return c.id; }),
                         };
-                    }
+                    },
                 }];
             });
-    }
+    },
 });

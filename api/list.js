@@ -1,5 +1,5 @@
-const Card = require("./card");
-const axios = require("axios");
+const Card = require('./card');
+const axios = require('axios');
 
 /**
  * List prototype
@@ -13,7 +13,7 @@ function List({ id, name, pos }) {
   this.urls = {
     create: `https://api.trello.com/1/lists?name=${name}&pos=${pos}&idBoard=${process.env.BOARD_ID}&key=${process.env.API_KEY}&token=${process.env.API_TOKEN}`,
     clear: `https://api.trello.com/1/lists/${id}/archiveAllCards?key=${process.env.API_KEY}&token=${process.env.API_TOKEN}`,
-    cards: `https://api.trello.com/1/lists/${id}/cards?customFieldItems=true&key=${process.env.API_KEY}&token=${process.env.API_TOKEN}`
+    cards: `https://api.trello.com/1/lists/${id}/cards?customFieldItems=true&key=${process.env.API_KEY}&token=${process.env.API_TOKEN}`,
   };
 }
 
@@ -45,18 +45,7 @@ List.prototype.clear = async function () {
 List.prototype.getCards = async function () {
   console.log(`retrieving cards: ${this.name}`);
   const { data } = await axios.get(this.urls.cards);
-  this.cards = data.map(c => new Card(c));
-};
-
-/**
- * Gets all Lists for a given boardId
- */
-List.get = async function ({ boardId }) {
-  console.log(`getting lists: ${boardId}`);
-  const get = `https://api.trello.com/1/boards/${boardId}/lists?key=${process.env.API_KEY}&token=${process.env.API_TOKEN}`
-  const { data } = await axios.get(get);
-
-  return data.map(l => new List(l));
+  this.cards = data.map((c) => new Card(c));
 };
 
 module.exports = List;

@@ -6,100 +6,89 @@ const List = require('../api/list');
  * Server business logic prototype
  */
 function Logic({ boardId }) {
-  this.cache = Logic.buildCache({ boardId });
+  this.boardId = boardId;
+  this._init();
 }
 
-Logic.buildCache = function ({ boardId }) {
-  return {
-    board: new Board({ id: boardId }),
-    lists: listData.reduce((a, c) => ({
-      ...a,
-      [c.name]: new List(c)
-    }), {}),
-    master: null,
-  };
-}
+Logic.prototype._init = function () {
+  this.board = new Board({ id: this.boardId });
+  this.lists = listData.reduce((a, c) => ({
+    ...a,
+    [c.name]: new List(c),
+  }), {});
+  this.master = null;
+};
 
 /**
  * Boots the server, fetches necessary data
  */
 Logic.prototype.startup = async function () {
-  await this.load().then(this.populate.bind(this))
-}
+  await this.load();
+  await this.populate();
+};
 
 /**
  * Clears cards from all lists
  */
 Logic.prototype.clear = async function () {
-  for (let day in this.cache.lists) {
-    const list = this.cache.lists[day];
-    (list.id != null ? list.clear() : list.create())
-      .then(l => {
-        this.cache.lists[day] = l;
-      });
+  for (let day in this.lists) {
+    const list = this.lists[day];
+    this.lists[day] = await (list.id != null ? list.clear() : list.create());
   }
-}
+};
 
 /**
  * Populates board with lists
  */
 Logic.prototype.populate = async function () {
-  for (let day in this.cache.lists) {
-    const list = this.cache.lists[day];
+  for (let day in this.lists) {
+    const list = this.lists[day];
     if (list.id == null) {
-      await list.create();
+      this.lists[day] = await list.create();
     }
   }
-}
+};
 
 /**
  * Fills board lists with Master cards
  */
 Logic.prototype.fill = async function () {
-  const { options } = this.cache.board.data.customfields.Day;
-  const cardsByList = this.cache.master.cards.reduce((a, c) => {
+  const { options } = this.board.data.customfields.Day;
+  await this.master.cards.map(async (c) => {
     const day = options[c.customFields.day];
-    const existingCards = a[day] || [];
-    existingCards.push(c);
-    return {
-      ...a,
-      [day]: existingCards
-    };
-  }, {});
-  Object.values(this.cache.lists).forEach(async l => {
-    const cards = cardsByList[l.name];
-    if (cards != null) {
-      cards.forEach(async c => {
-        await c.copy({ cardId: c.id, listId: l.id });
-      });
+    const list = this.lists[day];
+    if (list.id != null) {
+      await c.copy({ cardId: c.id, listId: list.id });
     }
   });
-}
+};
 
 /**
  * Loads remote data into cache
  */
 Logic.prototype.load = async function () {
-  this.cache = Logic.buildCache({ boardId: this.cache.board.id });
-  return Promise.all([
-    this.cache.board.get(),
-    List.get({ boardId: this.cache.board.id })
-  ]).then(async ([_, lists]) => {
-    await this.cache.board.getFields();
+  // sync object with trello
+  this._init();
 
-    for (let list of lists) {
-      if (list.name === "Master") {
-        delete this.cache.lists.Master;
-        this.cache.master = new List(list);
-        await this.cache.master.getCards();
-        continue;
-      }
+  // fetch board, fields and lists
+  await this.board.get();
+  await this.board.getFields();
+  await this.board.getLists();
 
-      if (this.cache.lists[list.name] != null) {
-        this.cache.lists[list.name] = new List(list);
-      }
+  // map master list and day lists
+  for (let list of this.board.data.lists) {
+    switch (list.name) {
+      case 'Master':
+        delete this.lists.Master;
+        this.master = new List(list);
+        await this.master.getCards();
+        break;
+      default:
+        if (this.lists[list.name] != null) {
+          this.lists[list.name] = new List(list);
+        }
     }
-  });
-}
+  }
+};
 
 module.exports = Logic;

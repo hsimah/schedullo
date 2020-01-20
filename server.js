@@ -1,6 +1,6 @@
-var express = require("express");
-var cors = require("cors");
-var app = express();
+const express = require('express');
+const cors = require('cors');
+const app = express();
 const Logic = require('./logic/logic');
 const dotenv = require('dotenv');
 
@@ -13,18 +13,18 @@ const logic = new Logic({ boardId: process.env.BOARD_ID });
 logic.startup().then(() => {
   // listen for requests
   const listener = app.listen(process.env.PORT, function () {
-    console.log("Your app is listening on port " + listener.address().port);
+    console.log('Your app is listening on port ' + listener.address().port);
   });
 });
 
 // set cors
-app.use(cors({ origin: "*" }));
+app.use(cors({ origin: '*' }));
 
 // server static files
-app.use(express.static("public"));
+app.use(express.static('public'));
 
 // flush board and recreate cards
-app.get("/populate", function (_, response) {
+app.get('/populate', function (_, response) {
   logic.load()
     .then(logic.clear.bind(logic)) // clear cards
     .then(logic.load.bind(logic)) // ensure all boards loaded
@@ -33,6 +33,6 @@ app.get("/populate", function (_, response) {
 });
 
 // serve trello power up client code
-app.get("*", function (request, response) {
-  response.sendFile(__dirname + "/views/index.html");
+app.get('*', function (_, response) {
+  response.sendFile(__dirname + '/views/index.html');
 });

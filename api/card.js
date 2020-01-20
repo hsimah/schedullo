@@ -11,7 +11,7 @@ function Card({ id, customFieldItems = [] }) {
   this.urls = {
     create: ({ listId }) =>
       `https://api.trello.com/1/cards?idList=${listId}&keepFromSource=all&idCardSource=${this.id}&key=${process.env.API_KEY}&token=${process.env.API_TOKEN}`,
-    customFields: `https://api.trello.com/1/cards/${id}/customFieldItems?card_customFieldItems=true&key=${process.env.API_KEY}&token=${process.env.API_TOKEN}`
+    customFields: `https://api.trello.com/1/cards/${id}/customFieldItems?card_customFieldItems=true&key=${process.env.API_KEY}&token=${process.env.API_TOKEN}`,
   };
 }
 
@@ -30,22 +30,20 @@ Card.prototype.copy = async function({ listId }) {
 Card.prototype.getCustomFields = async function() {
   console.log(`getting custom fields: ${this.id}`);
   const { data } = await axios.get(this.urls.customFields);
-  this.customFields = data.reduce((a, c) => {
-    return {
-      ...a,
-      day: c.idValue
-    };
-  }, {});
+  this.customFields = data.reduce(Card.fieldReducer, {});
 };
 
 /**
  * Static Card field reducer
+ * @param {object} a the reducer accumulator
+ * @param {object} c the current Card
+ * @returns {object} map of Card[] by day
  */
 Card.fieldReducer = (a, c) => {
   return {
     ...a,
-    day: c.idValue
+    day: c.idValue,
   };
-}
+};
 
 module.exports = Card;
