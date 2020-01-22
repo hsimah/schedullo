@@ -57,5 +57,8 @@ typings/
 # dotenv environment variables file
 .env
 
-# next.js build output
-.next
+# Serverless directories
+.serverless
+
+# secrets
+secrets.json

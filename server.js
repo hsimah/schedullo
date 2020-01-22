@@ -12,9 +12,9 @@ const logic = new Logic({ boardId: process.env.BOARD_ID });
 
 logic.startup().then(() => {
   // listen for requests
-  const listener = app.listen(process.env.PORT, function () {
-    console.log('Your app is listening on port ' + listener.address().port);
-  });
+  // const listener = app.listen(process.env.PORT, function () {
+  //   console.log('Your app is listening on port ' + listener.address().port);
+  // });
 });
 
 // set cors
@@ -36,3 +36,5 @@ app.get('/populate', function (_, response) {
 app.get('*', function (_, response) {
   response.sendFile(__dirname + '/views/index.html');
 });
+
+module.exports = app;
