@@ -2,11 +2,12 @@
   "name": "schedullo",
   "version": "1.0.0",
   "description": "Trello Scheduler Power-Up",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
     "build": "next build",
     "deploy": "sls deploy",
-    "lint": "./node_modules/.bin/eslint --fix --ext .js --ext .jsx ."
+    "lint": "./node_modules/.bin/eslint --fix --ext .js --ext .jsx .",
+    "start": "node index.js"
   },
   "dependencies": {
     "axios": "^0.19.1",

@@ -1,6 +1,6 @@
-const listData = require('../data/lists.json');
-const Board = require('../api/board');
-const List = require('../api/list');
+const listData = require('./data/lists.json');
+const Board = require('./api/board');
+const List = require('./api/list');
 
 /**
  * Server business logic prototype
