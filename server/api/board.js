@@ -1,6 +1,8 @@
 const axios = require('axios');
 const CustomFields = require('./custom-fields');
 const List = require('./list');
+const listData = require('../data/lists.json');
+
 /**
  * Board prototype
  * This represents a Trello board
@@ -18,7 +20,7 @@ function Board({ id }) {
 /**
  * Gets the Board
  */
-Board.prototype.get = async function() {
+Board.prototype.get = async function () {
   console.info(`getting board: ${this.id}`);
   const { data } = await axios.get(this.urls.get);
   this.data = data;
@@ -27,7 +29,7 @@ Board.prototype.get = async function() {
 /**
  * Gets custom fields for the Board
  */
-Board.prototype.getFields = async function() {
+Board.prototype.getFields = async function () {
   console.info(`getting fields for: ${this.id}`);
   const { data } = await axios.get(this.urls.fields);
   this.data.customfields = data.reduce(CustomFields.reducer, {});
@@ -36,10 +38,24 @@ Board.prototype.getFields = async function() {
 /**
 * Gets all Lists for a given boardId
 */
-Board.prototype.getLists = async function() {
+Board.prototype.getLists = async function () {
   console.log(`getting lists: ${this.id}`);
   const { data } = await axios.get(this.urls.lists);
-  this.data.lists = data.map((l) => new List(l));
+
+  return data;
+};
+
+/**
+* Sorts board lists by config pos
+*/
+Board.prototype.sort = async function () {
+  const lists = await this.getLists();
+
+  lists.forEach(async (l) => {
+    const { pos } = listData[l.name];
+    const list = new List(l);
+    await list.update(pos);
+  });
 };
 
 module.exports = Board;

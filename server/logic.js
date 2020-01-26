@@ -12,9 +12,9 @@ function Logic({ boardId }) {
 
 Logic.prototype._init = function () {
   this.board = new Board({ id: this.boardId });
-  this.lists = listData.reduce((a, c) => ({
+  this.lists = Object.entries(listData).reduce((a, [key, value]) => ({
     ...a,
-    [c.name]: new List(c),
+    [key]: new List(value),
   }), {});
   this.master = null;
 };
@@ -35,6 +35,7 @@ Logic.prototype.clear = async function () {
     const list = this.lists[day];
     this.lists[day] = await (list.id != null ? list.clear() : list.create());
   }
+  await this.board.sort();
 };
 
 /**
@@ -47,6 +48,7 @@ Logic.prototype.populate = async function () {
       this.lists[day] = await list.create();
     }
   }
+  await this.board.sort();
 };
 
 /**
@@ -61,6 +63,7 @@ Logic.prototype.fill = async function () {
       await c.copy({ cardId: c.id, listId: list.id });
     }
   });
+  await this.board.sort();
 };
 
 /**
@@ -73,10 +76,10 @@ Logic.prototype.load = async function () {
   // fetch board, fields and lists
   await this.board.get();
   await this.board.getFields();
-  await this.board.getLists();
+  const lists = await this.board.getLists();
 
   // map master list and day lists
-  for (let list of this.board.data.lists) {
+  for (let list of lists) {
     switch (list.name) {
       case 'Master':
         delete this.lists.Master;
