@@ -1,0 +1,28 @@
+FROM wordpress:5.6.1-php7.4-apache
+
+LABEL author=hsimah
+LABEL author_uri=https://github.com/hsimah-services
+
+# dev dependencies
+RUN apt-get update && apt-get install -y \
+  openssh-client \
+  git \
+  && rm -rf /var/lib/apt/lists/*
+# xdebug
+RUN pecl channel-update pecl.php.net && \
+  pecl install xdebug
+# xdebug config
+RUN echo "zend_extension=$(find /usr/local/lib/php/extensions/ -name xdebug.so)" > /usr/local/etc/php/conf.d/xdebug.ini && \
+  echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/xdebug.ini && \
+  echo "xdebug.client_port=9001" >> /usr/local/etc/php/conf.d/xdebug.ini && \
+  echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/xdebug.ini && \
+  echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/conf.d/xdebug.ini
+# Apache ServerName
+RUN echo "ServerName 127.0.0.1" >> /etc/apache2/apache2.conf
+RUN sed -ri 's/www-data:x:33:33/www-data:x:1000:1000/' /etc/passwd
+RUN mkdir /root/.ssh && chmod 700 -R /root/.ssh
+
+EXPOSE 3306
+
+ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["apache2-foreground"]

@@ -1,0 +1,18 @@
+{
+	"name": "schedullo",
+	"dockerComposeFile": [
+		"docker-compose.yml"
+	],
+	"service": "wordpress",
+	"settings": {
+		"terminal.integrated.shell.linux": "/bin/bash",
+	},
+	"extensions": [
+		"bmewburn.vscode-intelephense-client",
+		"felixfbecker.php-debug"
+	],
+	"workspaceFolder": "/var/www/html",
+	"forwardPorts": [
+		80,
+	],
+}

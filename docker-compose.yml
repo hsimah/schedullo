@@ -1,0 +1,49 @@
+version: "3.7"
+
+services:
+  wordpress:
+    container_name: ${DOCKER_APP_NAME}_wordpress
+    build:
+      context: .
+      dockerfile: ./.docker/Dockerfile.wordpress
+    links:
+      - db
+    env_file: 
+      - ./.docker/wordpress.env
+    volumes:
+      - ssh:/root/.ssh
+      - ./.docker/.bashrc:/root/.bashrc:cached
+      - wordpress:/var/www/html
+      - .:/var/www/html/wp-content/plugins/${DOCKER_APP_NAME}
+    ports:
+      - 80:80
+    networks:
+      - network
+
+  db:
+    container_name: ${DOCKER_APP_NAME}_db
+    build:
+      context: .
+      dockerfile: ./.docker/Dockerfile.db
+    env_file: 
+        - ./.docker/db.env
+    volumes:
+      - db:/var/lib/mysql
+    networks:
+      - network
+    ports:
+      - 3306
+
+volumes:
+  db:
+    name: ${DOCKER_APP_NAME}_db
+  wordpress:
+    name: ${DOCKER_APP_NAME}_wordpress
+  ssh:
+    external:
+      name: ssh
+  
+networks:
+  network:
+    name: ${DOCKER_APP_NAME}_network
+    driver: bridge 
