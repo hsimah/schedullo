@@ -1,6 +1,6 @@
 <?php
 
-final class Day
+final class Schedullo_Days
 {
   public static function register_taxonomy()
   {

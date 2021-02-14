@@ -1,6 +1,6 @@
 <?php
 
-final class Event
+final class Schedullo_Event
 {
   public static function register_type()
   {

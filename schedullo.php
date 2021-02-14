@@ -60,5 +60,7 @@ if (!class_exists('Schedullo_Class')) {
     }
   });
 
-  require_once __DIR__ . '/src/schedullo-class.php';
+  require_once __DIR__ . '/inc/bootstrap.php';
+  $bootstrapper = new Schedullo_Bootstrap();
+	$bootstrapper->init();
 }
